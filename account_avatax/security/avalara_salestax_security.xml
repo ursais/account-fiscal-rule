@@ -13,5 +13,8 @@
     and the corresponding record rule also.
     This ensures the old record rule is removed from the database.
     -->
-    <delete model="ir.rule" id="account_salestax_avatax_tax_codes_rule" />
+    <function
+        model="avalara.salestax"
+        name="delete_rule_account_salestax_avatax_tax_codes_rule"
+    />
 </odoo>

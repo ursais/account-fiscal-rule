@@ -152,6 +152,15 @@ class AvalaraSalestax(models.Model):
         ),
     ]
 
+    @api.model
+    def delete_rule_account_salestax_avatax_tax_codes_rule(self):
+        rule = self.env.ref(
+            "account_avatax.account_salestax_avatax_tax_codes_rule",
+            raise_if_not_found=False,
+        )
+        if rule:
+            rule.unlink()
+
     def get_avatax_rest_service(self):
         self.ensure_one()
         if self.disable_tax_calculation:
