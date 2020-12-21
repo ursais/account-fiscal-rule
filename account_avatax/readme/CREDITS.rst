@@ -1,4 +1,4 @@
-This module was originally developed by Frabrice Henrion at Odoo SA,
+This module was originally developed by Fabrice Henrion at Odoo SA,
 and maintained up to version 11.
 
 For version 12, Fabrice invited partners to migrate this modules to
@@ -15,4 +15,4 @@ and then having Odoo do all the other computations.
 
 For Odoo 13, the legacy SOAP support was supported, and
 additional refactoring was done to contribute the module
-to the odoo Community Association.
+to the Odoo Community Association.
