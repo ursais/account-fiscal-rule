@@ -4,6 +4,20 @@ from odoo import api, fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
+    @api.model
+    @api.depends("company_id")
+    def _compute_hide_excemption(self):
+        avatax_config = self.env.company.get_avatax_config_company()
+        for order in self:
+            order.hide_excemption = avatax_config.hide_excemption
+
+    hide_excemption = fields.Boolean(
+        "Hide Exemption & Tax Based on shipping address",
+        compute=_compute_hide_excemption,  # For past transactions visibility
+        default=lambda self: self.env.company.get_avatax_config_company,
+        help="Uncheck the this field to show exemption fields on SO/Invoice form view. "
+        "Also, it will show Tax based on shipping address button",
+    )
     tax_amount = fields.Monetary(string="AvaTax")
 
     @api.onchange("partner_shipping_id", "partner_id")
@@ -208,10 +222,7 @@ class SaleOrder(models.Model):
         return res
 
     @api.onchange(
-        "order_line",
-        "tax_on_shipping_address",
-        "tax_address_id",
-        "partner_id",
+        "order_line", "tax_on_shipping_address", "tax_address_id", "partner_id",
     )
     def onchange_avatax_calculation(self):
         avatax_config = self.env.company.get_avatax_config_company()
@@ -244,9 +255,7 @@ class SaleOrder(models.Model):
             and not self._context.get("skip_second_write", False)
         ):
             record.with_context(skip_second_write=True).write(
-                {
-                    "calculate_tax_on_save": False,
-                }
+                {"calculate_tax_on_save": False,}
             )
             record.avalara_compute_taxes()
         return record
@@ -262,9 +271,7 @@ class SaleOrder(models.Model):
                 and not self._context.get("skip_second_write", False)
             ):
                 record.with_context(skip_second_write=True).write(
-                    {
-                        "calculate_tax_on_save": False,
-                    }
+                    {"calculate_tax_on_save": False,}
                 )
                 record.avalara_compute_taxes()
         return result
