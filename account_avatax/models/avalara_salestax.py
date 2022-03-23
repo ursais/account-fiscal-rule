@@ -122,9 +122,7 @@ class AvalaraSalestax(models.Model):
         help="Countries where address validation will be used",
     )
     active = fields.Boolean(
-        "Active",
-        default=True,
-        help="Uncheck the active field to hide the record",
+        "Active", default=True, help="Uncheck the active field to hide the record",
     )
     company_id = fields.Many2one(
         "res.company",
@@ -146,8 +144,15 @@ class AvalaraSalestax(models.Model):
     )
     use_so_partner_id = fields.Boolean(
         string="Use Sale Customer Code on Invoice",
-        help="If Boolean is checked, SO Partner Customer Code "
-        "on Invoice will be used",
+        help="Use Sales Order's Customer field to determine Taxable "
+        "Status on the Customer Invoice. If no Sales Order exists, "
+        "Customer field on the invoice form view will be used instead",
+    )
+    hide_excemption = fields.Boolean(
+        "Hide Exemption & Tax Based on shipping address",
+        default=True,
+        help="Uncheck the this field to show exemption fields on SO/Invoice form view. "
+        "Also, it will show Tax based on shipping address button",
     )
     # TODO: add option to Display Prices with Tax Included
 
