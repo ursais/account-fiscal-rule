@@ -28,7 +28,7 @@ Compute Taxes with AvaTax
   Location code will automatically populate with the warehouse code
   but can be modified if needed.
 
-- Hide Exemption & Tax Based on shipping address -- this will provide this 
+- Hide Exemption & Tax Based on shipping address -- this will provide this
   feature support at sale order level.
 
 
