@@ -152,7 +152,7 @@ class AvalaraSalestax(models.Model):
     )
     hide_excemption = fields.Boolean(
         "Hide Exemption & Tax Based on shipping address",
-        default=True,
+        default=False,
         help="Uncheck the this field to show exemption fields on SO/Invoice form view. "
         "Also, it will show Tax based on shipping address button",
     )
