@@ -14,7 +14,7 @@
                 />
             </button>
             <field name="payment_term_id" position="after">
-                <field name="hide_excemption" invisible="0" />
+                <field name="hide_excemption" invisible="1" />
                 <field
                     name="exemption_code"
                     readonly="1"

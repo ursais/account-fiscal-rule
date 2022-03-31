@@ -5,7 +5,7 @@ class SaleOrder(models.Model):
     _inherit = "sale.order"
 
     @api.model
-    @api.depends("company_id")
+    @api.depends("company_id", "partner_id", "partner_invoice_id", "state")
     def _compute_hide_excemption(self):
         avatax_config = self.env.company.get_avatax_config_company()
         for order in self:
