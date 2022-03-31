@@ -107,7 +107,7 @@ class AccountMove(models.Model):
     so_partner_id = fields.Many2one(comodel_name="res.partner", string="SO Partner")
 
     @api.model
-    @api.depends("company_id")
+    @api.depends("company_id", "state", "partner_id", "tax_address_id")
     def _compute_hide_excemption(self):
         avatax_config = self.env.company.get_avatax_config_company()
         for inv in self:
