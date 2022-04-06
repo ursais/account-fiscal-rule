@@ -108,14 +108,14 @@ class AccountMove(models.Model):
 
     @api.model
     @api.depends("company_id")
-    def _compute_hide_excemption(self):
+    def _compute_hide_exemption(self):
         avatax_config = self.env.company.get_avatax_config_company()
         for inv in self:
-            inv.hide_excemption = avatax_config.hide_excemption
+            inv.hide_exemption = avatax_config.hide_exemption
 
-    hide_excemption = fields.Boolean(
+    hide_exemption = fields.Boolean(
         "Hide Exemption & Tax Based on shipping address",
-        compute=_compute_hide_excemption,  # For past transactions visibility
+        compute=_compute_hide_exemption,  # For past transactions visibility
         default=lambda self: self.env.company.get_avatax_config_company,
         help="Uncheck the this field to show exemption fields on SO/Invoice form view. "
         "Also, it will show Tax based on shipping address button",

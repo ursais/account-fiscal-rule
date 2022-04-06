@@ -56,7 +56,7 @@
                                     name="use_so_partner_id"
                                     groups="base.group_no_one"
                                 />
-                                <field name="hide_excemption" />
+                                <field name="hide_exemption" />
                             </group>
                         </page>
                         <page

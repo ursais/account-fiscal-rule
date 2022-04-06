@@ -150,7 +150,7 @@ class AvalaraSalestax(models.Model):
         "Status on the Customer Invoice. If no Sales Order exists, "
         "Customer field on the invoice form view will be used instead",
     )
-    hide_excemption = fields.Boolean(
+    hide_exemption = fields.Boolean(
         "Hide Exemption & Tax Based on shipping address",
         default=False,
         help="Uncheck the this field to show exemption fields on SO/Invoice form view. "
