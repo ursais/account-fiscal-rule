@@ -65,7 +65,6 @@ class AccountMove(models.Model):
                 self.company_id = self.warehouse_id.company_id
             if self.warehouse_id.code:
                 self.location_code = self.warehouse_id.code
-                self.location_code = self.warehouse_id.code
 
     is_avatax = fields.Boolean(related="fiscal_position_id.is_avatax")
     invoice_doc_no = fields.Char(
