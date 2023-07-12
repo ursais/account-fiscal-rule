@@ -202,11 +202,15 @@ class AccountMove(models.Model):
     # Same as v12
     def _avatax_compute_tax(self, commit=False):
         """Contact REST API and recompute taxes for a Sale Order"""
+        """Override the Method Due to Taxes Issues faced in ORR Ticket Avatax Calculation - Split Taxable Lines for TN (#33258)"""
         self and self.ensure_one()
         avatax_config = self.company_id.get_avatax_config_company()
         if not avatax_config:
             # Skip Avatax computation if no configuration is found
             return
+        avatax_line_override = (
+            self.avatax_amt_line_override and self.move_type == "out_refund"
+        )
         doc_type = self._get_avatax_doc_type(commit=commit)
         tax_date = self.get_origin_tax_date() or self.invoice_date
         taxable_lines = self._avatax_prepare_lines(doc_type)
@@ -228,6 +232,7 @@ class AccountMove(models.Model):
             # TODO: can we report self.invoice_doc_no?
             self.name if self.move_type == "out_refund" else "",
             self.location_code or "",
+            avatax_line_override,
             is_override=self.move_type == "out_refund",
             currency_id=self.currency_id,
             ignore_error=300 if commit else None,
@@ -247,7 +252,7 @@ class AccountMove(models.Model):
             avatax_config.commit_transaction(self.name, doc_type)
             return tax_result
 
-        if self.state == "draft":
+        if self.state == "draft" and not avatax_line_override:
             Tax = self.env["account.tax"]
             tax_result_lines = {int(x["lineNumber"]): x for x in tax_result["lines"]}
             taxes_to_set = []
@@ -255,19 +260,25 @@ class AccountMove(models.Model):
             for index, line in enumerate(lines):
                 tax_result_line = tax_result_lines.get(line.id)
                 if tax_result_line:
-                    rate = tax_result_line.get("rate", 0.0)
+                    # rate = tax_result_line.get("rate", 0.0)
+                    tax_calculation = 0.0
+                    if tax_result_line["taxableAmount"]:
+                        tax_calculation = (
+                            tax_result_line["taxCalculated"]
+                            / tax_result_line["taxableAmount"]
+                        )
+                    rate = round(tax_calculation * 100, 4)
                     tax = Tax.get_avalara_tax(rate, doc_type)
                     if tax and tax not in line.tax_ids:
-                        line_taxes = (
-                            tax
-                            if avatax_config
-                            else line.tax_ids.filtered(lambda x: not x.is_avatax)
-                        )
+                        line_taxes = line.tax_ids.filtered(lambda x: not x.is_avatax)
                         taxes_to_set.append((index, line_taxes | tax))
                     line.avatax_amt_line = tax_result_line["tax"]
+                    line.avatax_tax_type = tax_result_line["details"][0]["taxSubTypeId"]
             self.avatax_amount = tax_result["totalTax"]
-            container = {"records": self}
-            self.line_ids.mapped("move_id")._check_balanced(container)
+            self.with_context(
+                avatax_invoice=self, check_move_validity=False
+            )._recompute_dynamic_lines(True, False)
+            self.line_ids.mapped("move_id")._check_balanced()
 
             # Set Taxes on lines in a way that properly triggers onchanges
             # This same approach is also used by the official account_taxcloud connector
