@@ -7,45 +7,6 @@ from odoo import api, fields, models
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    sale_scope_of_work = fields.Text("Scope of Work")
-    po_required = fields.Boolean(string="PO Required")
-    sale_customer_po = fields.Char("Customer PO")
-    sale_customer_wo_number = fields.Char("Customer W/O Number")
-    # This field is define temporary to avoid upgrade issue, This is in no use for ORR
-    tax_exempt = fields.Boolean(
-        "Is Tax Exempt",
-        help="This company or address can claim for tax exemption",
-    )
-    orgn_fsm_order_id = fields.Many2one("fsm.order", string="Originating FSM Order")
-
-    def _prepare_invoice(self):
-        """Copy values from sale order to invoice"""
-        vals = super(SaleOrder, self)._prepare_invoice()
-        vals.update(
-            {
-                "invoice_scope_of_work": self.sale_scope_of_work,
-                "invoice_customer_po": self.sale_customer_po,
-                "invoice_customer_wo_number": self.sale_customer_wo_number,
-                "partner_invoice_id": self.partner_invoice_id.id,
-                "invoice_fsm_location_id": self.fsm_location_id.id,
-            }
-        )
-        return vals
-
-    def _field_create_fsm_order_prepare_values(self):
-        result = super()._field_create_fsm_order_prepare_values()
-        result.update({"scope_of_work": self.sale_scope_of_work})
-        return result
-
-    @api.onchange("partner_invoice_id")
-    def _onchange_partner_invoice_id(self):
-        res = super()._onchange_partner_invoice_id()
-        po_required = False
-        if self.partner_invoice_id:
-            po_required = self.partner_invoice_id.po_required
-        self.po_required = po_required
-        return res
-
     def _avatax_compute_tax(self):
         """Contact REST API and recompute taxes for a Sale Order"""
         """Override the Method Due to Taxes Issues faced in ORR Ticket Avatax Calculation - Split Taxable Lines for TN (#33258)"""
