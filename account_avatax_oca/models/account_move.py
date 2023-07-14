@@ -271,10 +271,10 @@ class AccountMove(models.Model):
                     line.avatax_amt_line = tax_result_line["tax"]
                     #line.avatax_tax_type = tax_result_line["details"][0]["taxSubTypeId"]
             self.avatax_amount = tax_result["totalTax"]
-            #self.with_context(
-            #    avatax_invoice=self, check_move_validity=False
-            #)._recompute_dynamic_lines(True, False)
             container = {'records': self}
+            self.with_context(
+                avatax_invoice=self, check_move_validity=False
+            )._sync_dynamic_lines(container)
             self.line_ids.mapped("move_id")._check_balanced(container)
 
             # Set Taxes on lines in a way that properly triggers onchanges
