@@ -208,9 +208,6 @@ class AccountMove(models.Model):
         if not avatax_config:
             # Skip Avatax computation if no configuration is found
             return
-        avatax_line_override = (
-            self.avatax_amt_line_override and self.move_type == "out_refund"
-        )
         doc_type = self._get_avatax_doc_type(commit=commit)
         tax_date = self.get_origin_tax_date() or self.invoice_date
         taxable_lines = self._avatax_prepare_lines(doc_type)
@@ -232,7 +229,6 @@ class AccountMove(models.Model):
             # TODO: can we report self.invoice_doc_no?
             self.name if self.move_type == "out_refund" else "",
             self.location_code or "",
-            avatax_line_override,
             is_override=self.move_type == "out_refund",
             currency_id=self.currency_id,
             ignore_error=300 if commit else None,
@@ -252,7 +248,7 @@ class AccountMove(models.Model):
             avatax_config.commit_transaction(self.name, doc_type)
             return tax_result
 
-        if self.state == "draft" and not avatax_line_override:
+        if self.state == "draft":
             Tax = self.env["account.tax"]
             tax_result_lines = {int(x["lineNumber"]): x for x in tax_result["lines"]}
             taxes_to_set = []
@@ -273,12 +269,13 @@ class AccountMove(models.Model):
                         line_taxes = line.tax_ids.filtered(lambda x: not x.is_avatax)
                         taxes_to_set.append((index, line_taxes | tax))
                     line.avatax_amt_line = tax_result_line["tax"]
-                    line.avatax_tax_type = tax_result_line["details"][0]["taxSubTypeId"]
+                    #line.avatax_tax_type = tax_result_line["details"][0]["taxSubTypeId"]
             self.avatax_amount = tax_result["totalTax"]
-            self.with_context(
-                avatax_invoice=self, check_move_validity=False
-            )._recompute_dynamic_lines(True, False)
-            self.line_ids.mapped("move_id")._check_balanced()
+            #self.with_context(
+            #    avatax_invoice=self, check_move_validity=False
+            #)._recompute_dynamic_lines(True, False)
+            container = {'records': self}
+            self.line_ids.mapped("move_id")._check_balanced(container)
 
             # Set Taxes on lines in a way that properly triggers onchanges
             # This same approach is also used by the official account_taxcloud connector
