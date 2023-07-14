@@ -171,7 +171,6 @@ class SaleOrder(models.Model):
     def _avatax_compute_tax(self):
         """Contact REST API and recompute taxes for a Sale Order"""
         """Override the Method Due to Taxes Issues faced in ORR Ticket Avatax Calculation - Split Taxable Lines for TN (#33258)"""
-        import pdb;pdb.set_trace()
         self and self.ensure_one()
         doc_type = self._get_avatax_doc_type()
         Tax = self.env["account.tax"]
