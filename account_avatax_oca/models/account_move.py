@@ -270,7 +270,9 @@ class AccountMove(models.Model):
                         taxes_to_set.append((index, line_taxes | tax))
                     line.avatax_amt_line = tax_result_line["tax"]
                     #line.avatax_tax_type = tax_result_line["details"][0]["taxSubTypeId"]
-            self.avatax_amount = tax_result["totalTax"]
+            self.with_context(
+                check_move_validity=False
+            ).avatax_amount = tax_result["totalTax"]
             container = {'records': self}
             self.with_context(
                 avatax_invoice=self, check_move_validity=False
