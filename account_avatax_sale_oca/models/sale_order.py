@@ -89,7 +89,7 @@ class SaleOrder(models.Model):
         """
         for order in self:
             order.tax_amount = 0
-            order.order_line.tax_amt = 0
+            order.order_line.write({"tax_amt": 0})
 
     @api.depends("order_line.price_total", "order_line.product_uom_qty", "tax_amount")
     def _compute_amounts(self):
@@ -170,6 +170,7 @@ class SaleOrder(models.Model):
 
     def _avatax_compute_tax(self):
         """Contact REST API and recompute taxes for a Sale Order"""
+        # Override to handle lines with split taxes (e.g. TN)
         self and self.ensure_one()
         doc_type = self._get_avatax_doc_type()
         Tax = self.env["account.tax"]
@@ -201,6 +202,7 @@ class SaleOrder(models.Model):
                 # Should we check the rate with the tax amount?
                 # tax_amount = tax_result_line["taxCalculated"]
                 # rate = round(tax_amount / line.price_subtotal * 100, 2)
+                # rate = tax_result_line["rate"]
                 tax_calculation = 0.0
                 if tax_result_line["taxableAmount"]:
                     tax_calculation = (
