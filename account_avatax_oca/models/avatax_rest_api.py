@@ -197,7 +197,7 @@ class AvaTaxRESTService:
             line["rate"] = (
                 round(
                     sum(x["rate"] for x in line["details"] if x and x.get("tax")) * 100,
-                    4,
+                    2,
                 )
                 or 0.0
             )
