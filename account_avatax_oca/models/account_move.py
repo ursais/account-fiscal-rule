@@ -239,9 +239,12 @@ class AccountMove(models.Model):
                     # rate = tax_result_line.get("rate", 0.0)
                     tax_calculation = 0.0
                     if tax_result_line["taxableAmount"]:
-                        tax_calculation = (
-                            tax_result_line["taxCalculated"]
-                            / tax_result_line["taxableAmount"]
+                        tax_calculation = round(
+                            (
+                                tax_result_line["taxCalculated"]
+                                / tax_result_line["taxableAmount"]
+                            ),
+                            4,
                         )
                     rate = round(tax_calculation * 100, 4)
                     tax = Tax.get_avalara_tax(rate, doc_type)
