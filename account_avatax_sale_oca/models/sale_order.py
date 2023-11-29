@@ -1,3 +1,5 @@
+from decimal import ROUND_HALF_UP, Decimal
+
 from odoo import api, fields, models
 
 
@@ -199,20 +201,9 @@ class SaleOrder(models.Model):
         for line in self.order_line:
             tax_result_line = tax_result_lines.get(line.id)
             if tax_result_line:
-                # Should we check the rate with the tax amount?
-                # tax_amount = tax_result_line["taxCalculated"]
-                # rate = round(tax_amount / line.price_subtotal * 100, 2)
-                # rate = tax_result_line["rate"]
-                tax_calculation = 0.0
-                if tax_result_line["taxableAmount"]:
-                    tax_calculation = round(
-                        (
-                            tax_result_line["taxCalculated"]
-                            / tax_result_line["taxableAmount"]
-                        ),
-                        4,
-                    )
-                rate = round(tax_calculation * 100, 4)
+                rate = Decimal(tax_result_line["rate"]).quantize(
+                    Decimal("0.01"), ROUND_HALF_UP
+                )
                 tax = Tax.get_avalara_tax(rate, doc_type)
                 if tax not in line.tax_id:
                     line_taxes = (
