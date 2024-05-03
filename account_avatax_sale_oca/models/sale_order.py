@@ -274,18 +274,21 @@ class SaleOrder(models.Model):
     @api.model
     def create(self, vals):
         record = super(SaleOrder, self).create(vals)
-        avatax_config = self.env.company.get_avatax_config_company()
-        if (
-            avatax_config.sale_calculate_tax
-            and record.calculate_tax_on_save
-            and not self._context.get("skip_second_write", False)
-        ):
-            record.with_context(skip_second_write=True).write(
-                {
-                    "calculate_tax_on_save": False,
-                }
-            )
-            record.avalara_compute_taxes()
+        try:
+            avatax_config = self.env.company.get_avatax_config_company()
+            if (
+                avatax_config.sale_calculate_tax
+                and record.calculate_tax_on_save
+                and not self._context.get("skip_second_write", False)
+            ):
+                record.with_context(skip_second_write=True).write(
+                    {
+                        "calculate_tax_on_save": False,
+                    }
+                )
+                record.avalara_compute_taxes()
+        except:
+            pass
         return record
 
     def write(self, vals):
