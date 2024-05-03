@@ -239,7 +239,13 @@ class SaleOrder(models.Model):
                 if not addr.date_validation:
                     # The Confirm action will be interrupted
                     # if the address is not validated
-                    return addr.button_avatax_validate_address()
+                    # if this is not an automated confirm process
+                    if not self._context.get("auto_confirm", False)
+                        return addr.button_avatax_validate_address()
+                    # if this is an automated confirm process, we are skipping the order with address
+                    # validation error
+                    else: 
+                        return
         if avatax_config:
             self.avalara_compute_taxes()
         return super(SaleOrder, self).action_confirm()
