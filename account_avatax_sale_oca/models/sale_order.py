@@ -240,7 +240,7 @@ class SaleOrder(models.Model):
                     # The Confirm action will be interrupted
                     # if the address is not validated
                     # if this is not an automated confirm process
-                    if not self._context.get("auto_confirm", False)
+                    if not self._context.get("auto_confirm", False):
                         return addr.button_avatax_validate_address()
                     # if this is an automated confirm process, we are skipping the order with address
                     # validation error
