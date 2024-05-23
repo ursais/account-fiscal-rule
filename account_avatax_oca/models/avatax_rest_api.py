@@ -203,6 +203,25 @@ class AvaTaxRESTService:
             )
         return avatax_result
 
+    def get_addresses(self, origin, destination):
+        partner_addresses = {
+            "shipFrom": {
+                "city": origin.city,
+                "country": origin.country_id.code or None,
+                "line1": origin.street or None,
+                "postalCode": origin.zip,
+                "region": origin.state_id.code or None,
+            },
+            "shipTo": {
+                "city": destination.city,
+                "country": destination.country_id.code or None,
+                "line1": destination.street or None,
+                "postalCode": destination.zip,
+                "region": destination.state_id.code or None,
+            },
+        }
+        return partner_addresses
+    
     def get_tax(
         self,
         company_code,
@@ -262,22 +281,6 @@ class AvaTaxRESTService:
         if doc_date and type(doc_date) != str:
             doc_date = fields.Date.to_string(doc_date)
         create_transaction = {
-            "addresses": {
-                "shipFrom": {
-                    "city": origin.city,
-                    "country": origin.country_id.code or None,
-                    "line1": origin.street or None,
-                    "postalCode": origin.zip,
-                    "region": origin.state_id.code or None,
-                },
-                "shipTo": {
-                    "city": destination.city,
-                    "country": destination.country_id.code or None,
-                    "line1": destination.street or None,
-                    "postalCode": destination.zip,
-                    "region": destination.state_id.code or None,
-                },
-            },
             "lines": lineslist,
             # 'purchaseOrderNo": "2020-02-05-001"
             "companyCode": company_code,
@@ -295,6 +298,9 @@ class AvaTaxRESTService:
             "type": doc_type,
             "commit": commit,
         }
+        addresses = self.get_addresses(origin, destination)
+        if addresses:
+            create_transaction.update({"addresses": addresses})
         if is_override and invoice_date:
             create_transaction.update(
                 {
