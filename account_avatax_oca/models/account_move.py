@@ -180,10 +180,14 @@ class AccountMove(models.Model):
         Returns a list of dicts
         """
         sign = 1 if self.move_type.startswith("out") else -1
+        # TODO: Verify the below logic
+        # Filtering Invoice Lines to only select those with tax of type AVATAX is present.
+        # This is to stop calculating taxes for lines where AVATAX tax is not set, and it still fetches tax for it.
         lines = [
             line._avatax_prepare_line(sign, doc_type)
             for line in self.invoice_line_ids
-            if line.price_subtotal or line.quantity
+            # if line.price_subtotal or line.quantity
+            if (line.price_subtotal or line.quantity) and any(line.tax_ids.mapped("is_avatax"))
         ]
         return [x for x in lines if x]
 
@@ -288,7 +292,10 @@ class AccountMove(models.Model):
                 invoice.move_type in ["out_invoice", "out_refund"]
                 and invoice.fiscal_position_id.is_avatax
                 and (invoice.state == "draft" or commit)
+                and invoice.invoice_line_ids.filtered(lambda il: (il.price_subtotal or il.quantity) and
+                                                                  any(il.tax_ids.mapped("is_avatax")))
             ):
+                # if (line.price_subtotal or line.quantity) and any(line.tax_ids.mapped("is_avatax"))
                 invoice._avatax_compute_tax(commit=commit)
         return True
 

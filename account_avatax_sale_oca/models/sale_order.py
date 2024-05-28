@@ -164,9 +164,13 @@ class SaleOrder(models.Model):
         Prepare the lines to use for Avatax computation.
         Returns a list of dicts
         """
+        # Modified to skip sending SO lines that does not have Avatax enabled Tax in it. i.e "AVATAX"
+        # TODO: Verify this logic:
+        #  We stop Avatax API from adding taxes to lines that don't have taxes in it in the first place, like the Delivery Line.
         lines = [
             line._avatax_prepare_line(sign=1, doc_type=doc_type)
-            for line in order_lines.filtered(lambda line: not line.display_type)
+            # for line in order_lines.filtered(lambda line: not line.display_type)
+            for line in order_lines.filtered(lambda line: not line.display_type and any(line.tax_id.mapped('is_avatax')))
         ]
         return [x for x in lines if x]
 
