@@ -262,22 +262,6 @@ class AvaTaxRESTService:
         if doc_date and type(doc_date) != str:
             doc_date = fields.Date.to_string(doc_date)
         create_transaction = {
-            "addresses": {
-                "shipFrom": {
-                    "city": origin.city,
-                    "country": origin.country_id.code or None,
-                    "line1": origin.street or None,
-                    "postalCode": origin.zip,
-                    "region": origin.state_id.code or None,
-                },
-                "shipTo": {
-                    "city": destination.city,
-                    "country": destination.country_id.code or None,
-                    "line1": destination.street or None,
-                    "postalCode": destination.zip,
-                    "region": destination.state_id.code or None,
-                },
-            },
             "lines": lineslist,
             # 'purchaseOrderNo": "2020-02-05-001"
             "companyCode": company_code,
@@ -295,6 +279,24 @@ class AvaTaxRESTService:
             "type": doc_type,
             "commit": commit,
         }
+
+        # Bigin
+        # Block For Getting Origin and Destination Address
+        # Segeregate Method for if Destination dosen't have any
+        # address details get Avatax Tax with using Lattitude and Longitude from Partner
+
+        origin_addresses = origin.get_origin_addresses(origin)
+
+        destination_addresses = destination.get_destination_addresses(destination)
+
+        org_dest_addresses = {"addresses" : origin_addresses}
+
+        org_dest_addresses.get("addresses").update(destination_addresses)
+
+        create_transaction.update(org_dest_addresses)
+
+        # End
+
         if is_override and invoice_date:
             create_transaction.update(
                 {
