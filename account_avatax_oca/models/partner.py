@@ -211,3 +211,42 @@ class ResPartner(models.Model):
                 partner.multi_address_validation(validation_on_save=True)
                 partner.validated_on_save = True
         return res
+
+    def get_origin_addresses(self, origin):
+        partner_origin_addresses = {
+            "shipFrom": {
+                "city": origin.city,
+                "country": origin.country_id.code or None,
+                "line1": origin.street or None,
+                "postalCode": origin.zip,
+                "region": origin.state_id.code or None,
+            },
+        }
+        return partner_origin_addresses
+
+    def get_destination_addresses(self, destination):
+        partner_destination_addresses = {}
+        if (
+            not destination.city and not destination.zip and not destination.state_id.code
+        ) and (destination.partner_latitude and destination.partner_longitude):
+            partner_destination_addresses.update(
+            {
+                "coordinates": {
+                    "latitude": destination.partner_latitude,
+                    "longitude": destination.partner_longitude,
+                }
+            }
+        )
+        else:
+            partner_destination_addresses.update(
+                {
+                    "shipTo": {
+                        "city": destination.city,
+                        "country": destination.country_id.code or None,
+                        "line1": destination.street or None,
+                        "postalCode": destination.zip,
+                        "region": destination.state_id.code or None,
+                    }
+                }
+            )
+        return partner_destination_addresses

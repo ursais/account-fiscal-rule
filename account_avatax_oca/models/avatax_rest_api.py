@@ -203,25 +203,6 @@ class AvaTaxRESTService:
             )
         return avatax_result
 
-    def get_addresses(self, origin, destination):
-        partner_addresses = {
-            "shipFrom": {
-                "city": origin.city,
-                "country": origin.country_id.code or None,
-                "line1": origin.street or None,
-                "postalCode": origin.zip,
-                "region": origin.state_id.code or None,
-            },
-            "shipTo": {
-                "city": destination.city,
-                "country": destination.country_id.code or None,
-                "line1": destination.street or None,
-                "postalCode": destination.zip,
-                "region": destination.state_id.code or None,
-            },
-        }
-        return partner_addresses
-    
     def get_tax(
         self,
         company_code,
@@ -298,9 +279,24 @@ class AvaTaxRESTService:
             "type": doc_type,
             "commit": commit,
         }
-        addresses = self.get_addresses(origin, destination)
-        if addresses:
-            create_transaction.update({"addresses": addresses})
+
+        # Bigin
+        # Block For Getting Origin and Destination Address
+        # Segeregate Method for if Destination dosen't have any
+        # address details get Avatax Tax with using Lattitude and Longitude from Partner
+
+        origin_addresses = origin.get_origin_addresses(origin)
+
+        destination_addresses = destination.get_destination_addresses(destination)
+
+        org_dest_addresses = {"addresses" : origin_addresses}
+
+        org_dest_addresses.get("addresses").update(destination_addresses)
+
+        create_transaction.update(org_dest_addresses)
+
+        # End
+
         if is_override and invoice_date:
             create_transaction.update(
                 {
