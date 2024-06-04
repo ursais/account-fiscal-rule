@@ -156,22 +156,22 @@ class ResPartner(models.Model):
         )
         return valid_address
 
-    def get_avatax_address(self, destination):
+    def get_avatax_address(self):
         # Format an address according to Avatax API for CreateTransaction
         # https://developer.avalara.com
         # /api-reference/avatax/rest/v2/models/AddressLocationInfo/
         if self.partner_latitude or self.partner_longitude:
             res = {
-                "latitude": destination.partner_latitude,
-                "longitude": destination.partner_longitude,
+                "latitude": self.partner_latitude,
+                "longitude": self.partner_longitude,
             }
         else:
             res = {
-                "city": destination.city,
-                "country": destination.country_id.code or None,
-                "line1": destination.street or None,
-                "postalCode": destination.zip,
-                "region": destination.state_id.code or None,
+                "city": self.city,
+                "country": self.country_id.code or None,
+                "line1": self.street or None,
+                "postalCode": self.zip,
+                "region": self.state_id.code or None,
             }
         return res
 
