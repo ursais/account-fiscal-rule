@@ -28,13 +28,14 @@ class ResPartnerExemptionLine(models.Model):
     add_exemption_number = fields.Boolean()
     exemption_number = fields.Char()
 
-    @api.model
-    def create(self, vals):
-        if vals.get("name", _("New")) == _("New"):
-            vals["name"] = self.env["ir.sequence"].next_by_code(
-                "exemption.line.sequence"
-            ) or _("New")
-        return super().create(vals)
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            if vals.get("name", _("New")) == _("New"):
+                vals["name"] = self.env["ir.sequence"].next_by_code(
+                    "exemption.line.sequence"
+                ) or _("New")
+        return super().create(vals_list)
 
 
 class ResPartnerExemptionBusinessType(models.Model):
@@ -125,18 +126,6 @@ class ResPartnerExemption(models.Model):
                 name = f"{record.exemption_type.name} - {name}"
             res.append((record.id, name))
         return res
-
-    # TODO: Need to check, avalara.salestax not found and also field.
-    # @api.onchange("partner_id")
-    # def onchange_partner_id(self):
-    #     avalara_salestax = (
-    #         self.env["avalara.salestax"]
-    #         .sudo()
-    #         .search([("exemption_export", "=", True)], limit=1)
-    #     )
-    #     if avalara_salestax.use_commercial_entity:
-    #         self.partner_id = self.partner_id.commercial_partner_id.id
-    #         return {"domain": {"partner_id": [("parent_id", "=", False)]}}
 
     @api.onchange("exemption_type", "group_of_state")
     def onchange_exemption_type(self):
