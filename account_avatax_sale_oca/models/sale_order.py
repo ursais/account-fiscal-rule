@@ -280,7 +280,8 @@ class SaleOrder(models.Model):
                         "calculate_tax_on_save": False,
                     }
                 )
-                sale.avalara_compute_taxes()
+                if sale.order_line:
+                    sale.avalara_compute_taxes()
         return sales
 
     def write(self, vals):
@@ -298,7 +299,8 @@ class SaleOrder(models.Model):
                         "calculate_tax_on_save": False,
                     }
                 )
-                record.avalara_compute_taxes()
+                if record.order_line:
+                    record.avalara_compute_taxes()
         return result
 
 
