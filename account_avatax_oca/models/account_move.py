@@ -32,7 +32,7 @@ class AccountMove(models.Model):
 
         For this to work properly, the "exemption_lock" is no longer supported.
         """
-        for invoice in self.filtered(lambda x: x.state == "draft"):
+        for invoice in self:
             invoice_partner = invoice.partner_id.commercial_partner_id
             ship_to_address = (
                 hasattr(invoice, "partner_shipping_id")
@@ -46,10 +46,7 @@ class AccountMove(models.Model):
             ).filtered("property_tax_exempt")
 
             exemption_address_naive = exemption_addresses.filtered(
-                lambda a,
-                ship_to_address=ship_to_address,
-                invoice_partner=invoice_partner: a.country_id
-                == ship_to_address.country_id
+                lambda a: a.country_id == ship_to_address.country_id
                 and (
                     a.state_id == ship_to_address.state_id
                     or invoice_partner.property_exemption_country_wide
