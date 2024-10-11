@@ -197,6 +197,8 @@ class SaleOrder(models.Model):
             currency_id=self.currency_id,
             log_to_record=self,
         )
+        if tax_result.get("error"):
+            raise UserError(str(tax_result["error"]["details"][0]["description"]))
         tax_result_lines = {int(x["lineNumber"]): x for x in tax_result["lines"]}
         for line in self.order_line:
             tax_result_line = tax_result_lines.get(line.id)

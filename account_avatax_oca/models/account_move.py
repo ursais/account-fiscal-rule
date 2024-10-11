@@ -224,6 +224,8 @@ class AccountMove(models.Model):
             ignore_error=300 if commit else None,
             log_to_record=self,
         )
+        if tax_result.get("error"):
+            raise UserError(str(tax_result["error"]["details"][0]["description"]))
         # If commiting, and document exists, try unvoiding it
         # Error number 300 = GetTaxError, Expected Saved|Posted
         if commit and tax_result.get("number") == 300:
