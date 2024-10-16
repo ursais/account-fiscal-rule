@@ -1,5 +1,7 @@
 import logging
 
+from decimal import ROUND_HALF_UP, Decimal
+
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tests.common import Form
