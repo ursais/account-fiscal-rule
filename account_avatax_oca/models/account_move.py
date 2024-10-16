@@ -245,13 +245,9 @@ class AccountMove(models.Model):
                 tax_result_line = tax_result_lines.get(line.id)
                 if tax_result_line:
                     # rate = tax_result_line.get("rate", 0.0)
-                    tax_calculation = 0.0
-                    if tax_result_line["taxableAmount"]:
-                        tax_calculation = (
-                            tax_result_line["taxCalculated"]
-                            / tax_result_line["taxableAmount"]
-                        )
-                    rate = round(tax_calculation * 100, 4)
+                    rate = Decimal(tax_result_line["rate"]).quantize(
+                        Decimal("0.01"), ROUND_HALF_UP
+                    )
                     tax = Tax.get_avalara_tax(rate, doc_type)
                     if tax and tax not in line.tax_ids:
                         line_taxes = line.tax_ids.filtered(lambda x: not x.is_avatax)
