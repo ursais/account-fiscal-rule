@@ -1,4 +1,5 @@
 from odoo import api, fields, models
+from odoo.exceptions import UserError
 from decimal import ROUND_HALF_UP, Decimal
 
 class SaleOrder(models.Model):
