@@ -2,7 +2,6 @@ import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
-from odoo.tests.common import Form
 
 _logger = logging.getLogger(__name__)
 
@@ -237,44 +236,24 @@ class AccountMove(models.Model):
             return tax_result
 
         if self.state == "draft":
-            Tax = self.env["account.tax"]
-            tax_result_lines = {int(x["lineNumber"]): x for x in tax_result["lines"]}
-            taxes_to_set = []
-            lines = self.invoice_line_ids
-            for index, line in enumerate(lines):
-                tax_result_line = tax_result_lines.get(line.id)
-                if tax_result_line:
-                    # rate = tax_result_line.get("rate", 0.0)
-                    tax_calculation = 0.0
-                    if tax_result_line["taxableAmount"]:
-                        tax_calculation = (
-                            tax_result_line["taxCalculated"]
-                            / tax_result_line["taxableAmount"]
-                        )
-                    rate = round(tax_calculation * 100, 4)
-                    tax = Tax.get_avalara_tax(rate, doc_type)
-                    if tax and tax not in line.tax_ids:
-                        line_taxes = line.tax_ids.filtered(lambda x: not x.is_avatax)
-                        taxes_to_set.append((index, line_taxes | tax))
-                    line.avatax_amt_line = tax_result_line["tax"]
-            self.with_context(check_move_validity=False).avatax_amount = tax_result[
-                "totalTax"
-            ]
-            container = {"records": self}
-            self.with_context(
-                avatax_invoice=self, check_move_validity=False
-            )._sync_dynamic_lines(container)
-            self.line_ids.mapped("move_id")._check_balanced(container)
+            tax_result_lines = avatax_config.get_avatax_line_tax(tax_result)
+            for line in self.invoice_line_ids:
+                line_tax = tax_result_lines.get(line.id)
+                tax = line_tax["tax_id"]
+                if tax and tax not in line.tax_ids:
+                    line.tax_ids = (
+                        line.tax_ids.filtered(lambda x: not x.is_avatax) | tax
+                    )
+                line.avatax_amt_line = line_tax.get("tax_amount", 0.0)
+            self.avatax_amount = tax_result.get("totalTax", 0.0)
 
-            # Set Taxes on lines in a way that properly triggers onchanges
-            # This same approach is also used by the official account_taxcloud connector
-            with Form(self) as move_form:
-                for index, taxes in taxes_to_set:
-                    with move_form.invoice_line_ids.edit(index) as line_form:
-                        line_form.tax_ids.clear()
-                        for tax in taxes:
-                            line_form.tax_ids.add(tax)
-
+            # total_tax= tax_result["totalTax"]
+            # self.with_context(check_move_validity=False).avatax_amount = total_tax
+            # container = {"records": self}
+            # self.with_context(
+            #     avatax_invoice=self, check_move_validity=False
+            # )._sync_dynamic_lines(container)
+            # self.line_ids.mapped("move_id")._check_balanced(container)
         return tax_result
 
     # Same as v13
