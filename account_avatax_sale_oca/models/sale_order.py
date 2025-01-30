@@ -200,10 +200,11 @@ class SaleOrder(models.Model):
             tax_result_lines = avatax_config.get_avatax_line_tax(tax_result)
             for line in self.order_line:
                 line_tax = tax_result_lines.get(line.id)
-                tax = line_tax["tax_id"]
-                if tax and tax not in line.tax_id:
-                    line.tax_id = line.tax_id.filtered(lambda x: not x.is_avatax) | tax
-                line.tax_amt = line_tax.get("tax_amount", 0.0)
+                if line_tax:
+                    tax = line_tax["tax_id"]
+                    if tax and tax not in line.tax_id:
+                        line.tax_id = line.tax_id.filtered(lambda x: not x.is_avatax) | tax
+                    line.tax_amt = line_tax.get("tax_amount", 0.0)
             self.tax_amount = tax_result.get("totalTax")
         return True
 
