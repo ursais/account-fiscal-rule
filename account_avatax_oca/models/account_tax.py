@@ -25,7 +25,7 @@ class AccountTax(models.Model):
         # plus the details of the real rate needed for Odoo
         # to calculate the exact same tax amount without rounding differences
         # This tax display name format can be configured in System Parameters
-        label = name = "{}%".format(round(theoretical_rate or real_rate, 2))
+        label = name = f"{round(theoretical_rate or real_rate, 2)}%"
         if str(real_rate) != str(theoretical_rate):
             name += f" ({real_rate})"
         return {

@@ -203,7 +203,9 @@ class SaleOrder(models.Model):
                 if line_tax:
                     tax = line_tax["tax_id"]
                     if tax and tax not in line.tax_id:
-                        line.tax_id = line.tax_id.filtered(lambda x: not x.is_avatax) | tax
+                        line.tax_id = (
+                            line.tax_id.filtered(lambda x: not x.is_avatax) | tax
+                        )
                     line.tax_amt = line_tax.get("tax_amount", 0.0)
             self.tax_amount = tax_result.get("totalTax")
         return True
