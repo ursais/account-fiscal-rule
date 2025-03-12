@@ -349,7 +349,7 @@ class AvalaraSalestax(models.Model):
             tax_amount = line.get("tax", 0.0)
             rate = round(sum(x["rate"] for x in line.get("details", [])) * 100, 4)
             real_rate = round(tax_amount * 100 / taxable if taxable else 0.0, 4)
-            tax = Tax.get_avalara_tax(real_rate, display_rate=rate)
+            tax = Tax.sudo().with_company(self.company_id).get_avalara_tax(real_rate, display_rate=rate)
             line_id = int(line["lineNumber"])
             res[line_id] = {"taxable": taxable, "tax_amount": tax_amount, "tax_id": tax}
         return res
