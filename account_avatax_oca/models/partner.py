@@ -153,7 +153,7 @@ class ResPartner(models.Model):
                 partner.display_name,
             )
             return False
-        avatax_config = self.env.company.get_avatax_config_company()
+        avatax_config = self.sudo().company_id.get_avatax_config_company()
         # Skip automatic validation for countries not supported by Avatax
         supported_countries = [x.code for x in avatax_config.country_ids]
         country_code = partner.country_id.code
@@ -210,7 +210,7 @@ class ResPartner(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         partners = super().create(vals_list)
-        avatax_config = self.env.company.get_avatax_config_company()
+        avatax_config = self.sudo().company_id.get_avatax_config_company()
         for partner in partners:
             # Auto populate customer code, if not provided
             if not partner.customer_code:
@@ -228,7 +228,7 @@ class ResPartner(models.Model):
             x in vals for x in address_fields
         ):
             partner = self.with_context(avatax_writing=True)
-            avatax_config = self.env.company.get_avatax_config_company()
+            avatax_config = self.sudo().company_id.get_avatax_config_company()
             if avatax_config.validation_on_save:
                 partner.multi_address_validation(validation_on_save=True)
                 partner.validated_on_save = True

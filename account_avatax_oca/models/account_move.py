@@ -115,14 +115,14 @@ class AccountMove(models.Model):
     @api.model
     @api.depends("company_id")
     def _compute_hide_exemption(self):
-        avatax_config = self.env.company.get_avatax_config_company()
+        avatax_config = self.sudo().company_id.get_avatax_config_company()
         for inv in self:
             inv.hide_exemption = avatax_config.hide_exemption
 
     hide_exemption = fields.Boolean(
         "Hide Exemption & Tax Based on shipping address",
         compute=_compute_hide_exemption,  # For past transactions visibility
-        default=lambda self: self.env.company.get_avatax_config_company,
+        default=lambda self: self.sudo().company_id.get_avatax_config_company,
         help="Uncheck the this field to show exemption fields on SO/Invoice form view. "
         "Also, it will show Tax based on shipping address button",
     )
@@ -198,7 +198,7 @@ class AccountMove(models.Model):
         doc_type = self._get_avatax_doc_type(commit=commit)
         tax_date = self.get_origin_tax_date() or self.invoice_date
         taxable_lines = self._avatax_prepare_lines(doc_type)
-        tax_result = avatax_config.create_transaction(
+        tax_result = avatax_config.sudo().with_company(avatax_config.company_id).create_transaction(
             self.invoice_date or fields.Date.today(),
             self.name,
             doc_type,
@@ -349,7 +349,7 @@ class AccountMove(models.Model):
         "partner_id",
     )
     def onchange_avatax_calculation(self):
-        avatax_config = self.env.company.get_avatax_config_company()
+        avatax_config = self.sudo().company_id.get_avatax_config_company()
         self.calculate_tax_on_save = False
         if avatax_config.invoice_calculate_tax:
             if (
@@ -371,7 +371,7 @@ class AccountMove(models.Model):
 
     def write(self, vals):
         result = super().write(vals)
-        avatax_config = self.env.company.get_avatax_config_company()
+        avatax_config = self.sudo().company_id.get_avatax_config_company()
         for record in self:
             if (
                 avatax_config.invoice_calculate_tax
@@ -388,7 +388,7 @@ class AccountMove(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         moves = super().create(vals_list)
-        avatax_config = self.env.company.get_avatax_config_company()
+        avatax_config = self.sudo().company_id.get_avatax_config_company()
         for move in moves:
             if (
                 avatax_config.invoice_calculate_tax
