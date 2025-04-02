@@ -101,3 +101,14 @@ Compute Taxes with AvaTax
   the module will automatically use the address of the company as its origin.
   Location code will automatically populate with the warehouse code
   but can be modified if needed.
+
+Configure Avatax commit Date
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- With the default “Commit to Avatax On Invoice posting” setting, invoices are committed to AvaTax immediately when the invoice is posted.
+
+- With a different setting selection, the commit to Avatax should be done manually, after the invoice is posted.
+
+- This is done from the “Commit to Avatax” option under the Action menu, also available on the invoice list view. The “Not Committed to Avatax” filter can be used to easily identify these invoices.
+
+- When a lock date is set to close the period, all invoices prior to this date should be committed to Avalara. If this is not the case an error message will present setting the lock date. 
