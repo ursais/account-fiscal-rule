@@ -187,6 +187,8 @@ class SaleOrder(models.Model):
         if avatax_config.use_partner_invoice_id:
             partner = self.partner_invoice_id
         taxable_lines = self._avatax_prepare_lines(self.order_line)
+        if not taxable_lines:
+            return
         tax_result = avatax_config.create_transaction(
             self.date_order,
             self.name,

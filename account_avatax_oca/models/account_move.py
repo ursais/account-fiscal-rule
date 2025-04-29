@@ -200,6 +200,8 @@ class AccountMove(models.Model):
         doc_type = self._get_avatax_doc_type(commit=commit)
         tax_date = self.get_origin_tax_date() or self.invoice_date
         taxable_lines = self._avatax_prepare_lines(doc_type)
+        if not taxable_lines:
+            return
         tax_result = avatax_config.create_transaction(
             self.invoice_date or fields.Date.today(),
             self.name,
