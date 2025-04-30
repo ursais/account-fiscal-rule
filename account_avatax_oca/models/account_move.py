@@ -282,6 +282,18 @@ class AccountMove(models.Model):
                     ).write({"tax_ids": taxes_to_set.get(line_id).ids})
             # After taxes are changed is needed to force compute taxes again, in 16 version
             # change of tax doesn't trigger compute of taxes on header for unknown reason
+            for line in self.line_ids:
+                if line.tax_line_id:  # Is a tax line
+                    line_ids = self.line_ids.filtered(
+                        lambda x: line.tax_line_id in x.tax_ids and x.avatax_amt_line
+                    )
+                    sign = 1 if sum(line_ids.amount_currency) >= 0 else -1
+                    if line_ids:
+                        vals = {
+                            "balance": sign
+                            * sum(line_id.avatax_amt_line for line_id in line_ids),
+                        }
+                        line.update(vals)
             self._compute_amount()
             if float_compare(
                 self.amount_untaxed + max(self.amount_tax, abs(self.avatax_amount)),
