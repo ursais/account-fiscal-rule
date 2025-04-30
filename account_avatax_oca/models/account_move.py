@@ -1,7 +1,5 @@
 import logging
 
-from decimal import ROUND_HALF_UP, Decimal
-
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError
 from odoo.tools import float_compare
@@ -248,9 +246,14 @@ class AccountMove(models.Model):
             for line in self.invoice_line_ids:
                 tax_result_line = tax_result_lines.get(line.id)
                 if tax_result_line:
-                    rate = Decimal(tax_result_line["rate"]).quantize(
-                        Decimal("0.01"), ROUND_HALF_UP
-                    )
+                    # rate = tax_result_line.get("rate", 0.0)
+                    tax_calculation = 0.0
+                    if tax_result_line["taxableAmount"]:
+                        tax_calculation = (
+                            tax_result_line["taxCalculated"]
+                            / tax_result_line["taxableAmount"]
+                        )
+                    rate = round(tax_calculation * 100, 4)
                     tax = Tax.get_avalara_tax(rate, doc_type)
                     tax, line = self.update_tax_details(tax, line, tax_result_line)
                     if tax and tax not in line.tax_ids:
