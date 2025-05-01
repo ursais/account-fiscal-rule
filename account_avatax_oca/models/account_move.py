@@ -284,11 +284,18 @@ class AccountMove(models.Model):
             # change of tax doesn't trigger compute of taxes on header for unknown reason
             for line in self.line_ids:
                 if line.tax_line_id:  # Is a tax line
-                    line_ids = self.line_ids.filtered(lambda x: line.tax_line_id in x.tax_ids and x.avatax_amt_line)
-                    sign = 1 if sum(line_id.amount_currency for line_id in line_ids) >= 0 else -1
+                    line_ids = self.line_ids.filtered(
+                        lambda x: line.tax_line_id in x.tax_ids and x.avatax_amt_line
+                    )
+                    sign = (
+                        1
+                        if sum(line_id.amount_currency for line_id in line_ids) >= 0
+                        else -1
+                    )
                     if line_ids:
                         vals = {
-                            "balance": sign * sum(line_id.avatax_amt_line for line_id in line_ids),
+                            "balance": sign
+                            * sum(line_id.avatax_amt_line for line_id in line_ids),
                         }
                         line.update(vals)
             self._compute_amount()
