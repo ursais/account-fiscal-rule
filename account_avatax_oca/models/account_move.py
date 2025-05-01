@@ -362,10 +362,12 @@ class AccountMove(models.Model):
         """
         Sets invoice to Draft, either from the Posted or Cancelled states
         """
+        product_id = self.env['ir.config_parameter'].sudo().get_param('sale.default_deposit_product_id')
         posted_invoices = self.filtered(
             lambda invoice: invoice.move_type in ["out_invoice", "out_refund"]
             and invoice.fiscal_position_id.is_avatax
             and invoice.state == "posted"
+            and not all(line.product_id.id == int(product_id) for line in invoice.invoice_line_ids)
         )
         res = super().button_draft()
         for invoice in posted_invoices:
