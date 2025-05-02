@@ -238,7 +238,21 @@ class AccountMove(models.Model):
             avatax_config.unvoid_transaction(self.name, doc_type)
             avatax_config.commit_transaction(self.name, doc_type)
             return tax_result
-
+        # Odoo incorrectly calculates taxes returned from Avatax due to rounding errors
+        # below code forces tax to equal what came over from Avatax
+        for line in self.line_ids:
+            if line.tax_line_id:  # Is a tax line
+                line_ids = self.line_ids.filtered(
+                    lambda x: line.tax_line_id in x.tax_ids and x.avatax_amt_line
+                )
+                balance = sum(line_id.amount_currency for line_id in line_ids)
+                sign = 1 if balance >= 0 else -1
+                total_tax_amount = sum(line_id.avatax_amt_line for line_id in line_ids)
+                if line_ids:
+                    vals = {
+                        "balance": sign * total_tax_amount,
+                    }
+                    line.update(vals)
         if self.state == "draft":
             Tax = self.env["account.tax"]
             tax_result_lines = {int(x["lineNumber"]): x for x in tax_result["lines"]}
@@ -282,22 +296,6 @@ class AccountMove(models.Model):
                     ).write({"tax_ids": taxes_to_set.get(line_id).ids})
             # After taxes are changed is needed to force compute taxes again, in 16 version
             # change of tax doesn't trigger compute of taxes on header for unknown reason
-            for line in self.line_ids:
-                if line.tax_line_id:  # Is a tax line
-                    line_ids = self.line_ids.filtered(
-                        lambda x: line.tax_line_id in x.tax_ids and x.avatax_amt_line
-                    )
-                    sign = (
-                        1
-                        if sum(line_id.amount_currency for line_id in line_ids) >= 0
-                        else -1
-                    )
-                    if line_ids:
-                        vals = {
-                            "balance": sign
-                            * sum(line_id.avatax_amt_line for line_id in line_ids),
-                        }
-                        line.update(vals)
             self._compute_amount()
             if float_compare(
                 self.amount_untaxed + max(self.amount_tax, abs(self.avatax_amount)),
