@@ -189,6 +189,7 @@ class AccountMove(models.Model):
         return tax, line
 
     # Same as v12
+    # flake8: noqa: C901
     def _avatax_compute_tax(self, commit=False):
         """Contact REST API and recompute taxes for a Sale Order"""
         # Override to handle lines with split taxes (e.g. TN)
