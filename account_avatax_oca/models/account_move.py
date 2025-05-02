@@ -303,7 +303,9 @@ class AccountMove(models.Model):
                     )
                     balance = sum(line_id.amount_currency for line_id in line_ids)
                     sign = 1 if balance >= 0 else -1
-                    total_tax_amount = sum(line_id.avatax_amt_line for line_id in line_ids)
+                    total_tax_amount = sum(
+                        line_id.avatax_amt_line for line_id in line_ids
+                    )
                     if line_ids:
                         vals = {
                             "balance": sign * total_tax_amount,
