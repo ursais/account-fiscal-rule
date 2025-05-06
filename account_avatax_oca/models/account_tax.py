@@ -14,6 +14,7 @@ class AccountTax(models.Model):
     @api.model
     def _get_avalara_tax_domain(self, tax_rate, doc_type):
         return [
+            ("active", "=", True),
             ("amount", "=", tax_rate),
             ("is_avatax", "=", True),
             (
