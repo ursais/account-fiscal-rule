@@ -196,7 +196,7 @@ class AvaTaxRESTService:
         for line in avatax_result.get("lines", []):
             line["rate"] = (
                 round(
-                    sum(x["rate"] for x in line["details"] if x and x.get("tax")) * 100,
+                    sum(x["rate"] for x in line["details"] if x and "tax" in x) * 100,
                     4,
                 )
                 or 0.0
