@@ -249,7 +249,7 @@ class AccountMove(models.Model):
                 tax_result_line = tax_result_lines.get(line.id)
                 if tax_result_line:
                     rate = Decimal(tax_result_line["rate"]).quantize(
-                        Decimal("0.01"), ROUND_HALF_UP
+                        Decimal("0.0001"), ROUND_HALF_UP
                     )
                     tax = Tax.get_avalara_tax(rate, doc_type)
                     if tax and tax not in line.tax_ids:
