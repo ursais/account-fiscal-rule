@@ -170,3 +170,12 @@ when a product category is created.
 
   - Under AvaTax Properties >> Tax Code
   - Select the desired Tax Code
+
+Configure Avatax commit Date
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+On the Avalara settings, the option field “Commit to Avatax On” allows for the settings: 
+  - Invoice posting (default) - commits to Avatax immediately on invoice posting.
+
+  - Prior to Management Closing - prevents setting Management closing lock if there are posted invoices not committed to Avatax.
+
+  - Prior to Accounting Closing - prevents setting All Users Lock Date lock if there are posted invoices not committed to Avatax.
