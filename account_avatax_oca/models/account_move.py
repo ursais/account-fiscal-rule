@@ -264,11 +264,11 @@ class AccountMove(models.Model):
             # Set Taxes on lines in a way that properly triggers onchanges
             # This same approach is also used by the official account_taxcloud connector
 
-            # for index, taxes in taxes_to_set:
-            #     # Access the invoice line by index
-            #     line = self.invoice_line_ids[index]
-            #     # Update the tax_ids field
-            #     line.write({"tax_ids": [(6, 0, [tax.id for tax in taxes])]})
+            for index, taxes in taxes_to_set.items():
+            #    # Access the invoice line by index
+                line = self.invoice_line_ids.filtered(lambda x: x.id==index)
+            #    # Update the tax_ids field
+                line.write({"tax_ids": [(6, 0, [tax.id for tax in taxes])]})
 
             with (
                 self.with_context(
@@ -284,6 +284,7 @@ class AccountMove(models.Model):
                     line.with_context(
                         avatax_invoice=self, check_move_validity=False
                     ).write({"tax_ids": taxes_to_set.get(line_id).ids})
+
             # After taxes are changed is needed to force compute taxes again,
             # in 16 version change of tax doesn't trigger compute of taxes
             # on header for unknown reason
