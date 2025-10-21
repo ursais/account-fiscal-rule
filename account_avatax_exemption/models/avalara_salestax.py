@@ -1,10 +1,9 @@
 import requests
-
 from odoo import _, fields, models
-from odoo.exceptions import UserError
-
-from odoo.addons.account_avatax_oca.models.avatax_rest_api import AvaTaxRESTService
+from odoo.addons.account_avatax_oca.models.avatax_rest_api import \
+    AvaTaxRESTService
 from odoo.addons.queue_job.exception import FailedJobError
+from odoo.exceptions import UserError
 
 
 class AvalaraSalestax(models.Model):
@@ -591,9 +590,11 @@ class AvalaraSalestax(models.Model):
                 ),
                 "filename": exemption_line.name,
                 "valid": True,
-                "exemptionNumber": exemption_line.exemption_number
-                if exemption_line.add_exemption_number
-                else exemption_line.exemption_id.exemption_number,
+                "exemptionNumber": (
+                    exemption_line.exemption_number
+                    if exemption_line.add_exemption_number
+                    else exemption_line.exemption_id.exemption_number
+                ),
                 "exemptPercentage": 100.0,
                 "validatedExemptionReason": {
                     "name": exemption_line.exemption_id.business_type.name,

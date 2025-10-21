@@ -1,5 +1,4 @@
 import logging
-
 from decimal import ROUND_HALF_UP, Decimal
 
 from odoo import _, api, fields, models
@@ -48,9 +47,7 @@ class AccountMove(models.Model):
             ).filtered("property_tax_exempt")
 
             exemption_address_naive = exemption_addresses.filtered(
-                lambda a,
-                ship_to_address=ship_to_address,
-                invoice_partner=invoice_partner: a.country_id
+                lambda a, ship_to_address=ship_to_address, invoice_partner=invoice_partner: a.country_id
                 == ship_to_address.country_id
                 and (
                     a.state_id == ship_to_address.state_id
@@ -205,9 +202,11 @@ class AccountMove(models.Model):
             self.invoice_date or fields.Date.today(),
             self.name,
             doc_type,
-            self.so_partner_id
-            if self.so_partner_id and avatax_config.use_so_partner_id
-            else self.partner_id,
+            (
+                self.so_partner_id
+                if self.so_partner_id and avatax_config.use_so_partner_id
+                else self.partner_id
+            ),
             self.warehouse_id.partner_id or self.company_id.partner_id,
             self.tax_address_id or self.partner_id,
             taxable_lines,

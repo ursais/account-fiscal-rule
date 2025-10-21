@@ -1,10 +1,9 @@
 import logging
 
 from odoo import _, http
+from odoo.addons.portal.controllers.portal import CustomerPortal
 from odoo.http import request, route
 from odoo.tools import exception_to_unicode
-
-from odoo.addons.portal.controllers.portal import CustomerPortal
 
 _logger = logging.getLogger(__name__)
 
