@@ -1,6 +1,8 @@
+from decimal import ROUND_HALF_UP, Decimal
+
 from odoo import api, fields, models
 from odoo.exceptions import UserError
-from decimal import ROUND_HALF_UP, Decimal
+
 
 class SaleOrder(models.Model):
     _inherit = "sale.order"
@@ -53,9 +55,7 @@ class SaleOrder(models.Model):
                 invoice_partner | invoice_partner.child_ids
             ).filtered("property_tax_exempt")
             exemption_address_naive = exemption_addresses.filtered(
-                lambda a,
-                ship_to_address=ship_to_address,
-                invoice_partner=invoice_partner: a.country_id
+                lambda a, ship_to_address=ship_to_address, invoice_partner=invoice_partner: a.country_id
                 == ship_to_address.country_id
                 and (
                     a.state_id == ship_to_address.state_id

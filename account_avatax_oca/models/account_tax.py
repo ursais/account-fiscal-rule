@@ -71,8 +71,8 @@ class AccountTax(models.Model):
         To find the Avatax amount, we search an Invoice line with the same
         quantity, price and product.
         """
-        if currency==None:
-            currency = self.env['res.currency'].search([('name','=','USD')])
+        if if currency == None: is None:
+            currency = self.env["res.currency"].search([("name", "=", "USD")])
         res = super().compute_all(
             price_unit,
             currency,
