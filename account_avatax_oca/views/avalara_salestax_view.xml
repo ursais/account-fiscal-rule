@@ -51,6 +51,20 @@
                                         />
                                 </div>
                                 <label
+                                        for="tax_code_last_sync"
+                                        string="Avalara Tax Codes"
+                                    />
+                                <div>
+                                    <field name="tax_code_last_sync" class="oe_inline" />
+                                    <button
+                                            name="action_sync_tax_codes"
+                                            string="Sync Tax Codes"
+                                            type="object"
+                                            icon="fa-refresh"
+                                            class="btn-link"
+                                        />
+                                </div>
+                                <label
                                         for="commit_to_avatax"
                                         string="Commit to AvaTax"
                                     />

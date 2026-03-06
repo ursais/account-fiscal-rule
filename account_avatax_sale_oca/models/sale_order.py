@@ -232,6 +232,17 @@ class SaleOrder(models.Model):
                 order._avatax_compute_tax()
         return True
 
+    def action_quotation_send(self):
+        for order in self:
+            avatax_config = order.company_id.get_avatax_config_company()
+            if (
+                avatax_config
+                and avatax_config.sale_calculate_tax
+                and order.fiscal_position_id.is_avatax
+            ):
+                order.avalara_compute_taxes()
+        return super().action_quotation_send()
+
     def action_confirm(self):
         avatax_config = self.company_id.get_avatax_config_company()
         if avatax_config and avatax_config.force_address_validation:
