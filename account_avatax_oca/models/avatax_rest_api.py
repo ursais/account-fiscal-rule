@@ -16,6 +16,8 @@ except Exception:
 
 
 class AvaTaxRESTService:
+    AVALARA_CLIENT_HEADER = "Odoo;a0nUz00000lVIX3IAO"
+
     def __init__(
         self,
         username=None,
@@ -29,8 +31,8 @@ class AvaTaxRESTService:
         self.timeout = not config and timeout or config.request_timeout
         self.is_log_enabled = enable_log or config and config.logging
         # Set elements adapter defaults
-        self.appname = "Odoo 15 - Open Source Integrators/OCA"
-        self.version = "a0o5a000007SPdsAAG"
+        self.appname = "Odoo"
+        self.version = "a0nUz00000lVIX3IAO"
         self.hostname = socket.gethostname()
         url = url or (config and config.service_url) or ""
         self.environment = (
@@ -52,6 +54,31 @@ class AvaTaxRESTService:
                     )
                 ) from exc
             self.client.add_credentials(username, password)
+            self._set_certified_client_header()
+
+    def _set_certified_client_header(self):
+        if not getattr(self, "client", False):
+            return
+        if hasattr(self.client, "client_id"):
+            self.client.client_id = self.AVALARA_CLIENT_HEADER
+        if hasattr(self.client, "client_header") and isinstance(
+            self.client.client_header, dict
+        ):
+            self.client.client_header["X-Avalara-Client"] = self.AVALARA_CLIENT_HEADER
+
+    def _log_certified_client_header(self):
+        if not self.is_log_enabled or not getattr(self, "client", False):
+            return
+        header_value = None
+        if hasattr(self.client, "client_header") and isinstance(
+            self.client.client_header, dict
+        ):
+            header_value = self.client.client_header.get("X-Avalara-Client")
+        if not header_value and hasattr(self.client, "client_id"):
+            header_value = self.client.client_id
+        _logger.info(
+            "AvaTax Certified Header X-Avalara-Client: %s", header_value or ""
+        )
 
     def _sanitize_text(self, text):
         res = (
@@ -298,6 +325,7 @@ class AvaTaxRESTService:
 
         data = {"createTransactionModel": create_transaction}
         if self.is_log_enabled:
+            self._log_certified_client_header()
             _logger.info(
                 "Request CreateOrAdjustTransaction %s %s (commit %s)\n%s",
                 doc_type,
@@ -314,6 +342,7 @@ class AvaTaxRESTService:
 
     def call(self, endpoint, company_code, doc_code, model=None, params=None):
         if self.is_log_enabled:
+            self._log_certified_client_header()
             _logger.info(
                 "Request Call %s(%s, %s, %s, %s)",
                 endpoint,
@@ -331,3 +360,17 @@ class AvaTaxRESTService:
             response = endpoint_method(company_code, doc_code, model)
         result = self.get_result(response)
         return result
+
+    def list_tax_codes(self):
+        endpoint_method = (
+            getattr(self.client, "list_tax_codes", None)
+            or getattr(self.client, "query_tax_codes", None)
+            or getattr(self.client, "list_tax_code", None)
+        )
+        if not endpoint_method:
+            raise UserError(
+                _("AvaTax SDK does not support tax code listing in this version.")
+            )
+        response = endpoint_method()
+        result = self.get_result(response)
+        return result.get("value", [])

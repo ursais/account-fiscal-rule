@@ -123,6 +123,11 @@ class AvalaraSalestax(models.Model):
         string="Company Address",
         related="company_id.partner_id",
     )
+    tax_code_last_sync = fields.Datetime(
+        string="Last Tax Code Sync",
+        readonly=True,
+        copy=False,
+    )
     upc_enable = fields.Boolean(
         "Enable UPC Taxability",
         help="Allows ean13 to be reported in place of Item Reference"
@@ -336,3 +341,86 @@ class AvalaraSalestax(models.Model):
         client = AvaTaxRESTService(config=self)
         client.ping()
         return True
+
+    @api.model
+    def _map_avatax_tax_code_type(self, tax_code_data):
+        searchable = " ".join(
+            [
+                tax_code_data.get("taxCodeType") or "",
+                tax_code_data.get("type") or "",
+                tax_code_data.get("name") or "",
+                tax_code_data.get("description") or "",
+            ]
+        ).lower()
+        if "freight" in searchable or "shipping" in searchable:
+            return "freight"
+        if "service" in searchable:
+            return "service"
+        if "digital" in searchable:
+            return "digital"
+        if "product" in searchable or "tangible" in searchable:
+            return "product"
+        return "other"
+
+    def action_sync_tax_codes(self):
+        self.ensure_one()
+        avatax_service = AvaTaxRESTService(config=self)
+        tax_codes = avatax_service.list_tax_codes()
+        ProductTaxCode = self.env["product.tax.code"]
+        code_names = [
+            (tax_code.get("taxCode") or tax_code.get("code"))
+            for tax_code in tax_codes
+            if (tax_code.get("taxCode") or tax_code.get("code"))
+        ]
+        existing_codes = ProductTaxCode.search([("name", "in", code_names)])
+        existing_map = {record.name: record for record in existing_codes}
+        created = updated = skipped = 0
+
+        for tax_code in tax_codes:
+            code = tax_code.get("taxCode") or tax_code.get("code")
+            if not code:
+                skipped += 1
+                continue
+            description = tax_code.get("description") or tax_code.get("name") or code
+            mapped_type = self._map_avatax_tax_code_type(tax_code)
+            existing = existing_map.get(code)
+            if existing:
+                vals = {}
+                if existing.description != description:
+                    vals["description"] = description
+                if mapped_type != "other" and existing.type != mapped_type:
+                    vals["type"] = mapped_type
+                if vals:
+                    existing.write(vals)
+                    updated += 1
+                else:
+                    skipped += 1
+                continue
+            ProductTaxCode.create(
+                {
+                    "name": code,
+                    "description": description,
+                    "type": mapped_type,
+                }
+            )
+            created += 1
+
+        self.tax_code_last_sync = fields.Datetime.now()
+        message = _(
+            "Tax code sync complete. Created: %(created)s, Updated: %(updated)s, "
+            "Unchanged/Skipped: %(skipped)s"
+        ) % {
+            "created": created,
+            "updated": updated,
+            "skipped": skipped,
+        }
+        return {
+            "type": "ir.actions.client",
+            "tag": "display_notification",
+            "params": {
+                "title": _("AvaTax Tax Codes"),
+                "message": message,
+                "type": "success",
+                "sticky": False,
+            },
+        }
