@@ -30,14 +30,18 @@ class Company(models.Model):
 
     def _validate_fiscalyear_lock(self, values):
         res = super()._validate_fiscalyear_lock(values)
+        fiscalyear_lock_date = values.get("fiscalyear_lock_date")
+        if not fiscalyear_lock_date:
+            return res
+
         avatax_config = self.get_avatax_config_company()
-        if avatax_config.commit_to_avatax != "invoice_posting":
+        if avatax_config and avatax_config.commit_to_avatax != "invoice_posting":
             uncommits_entries = self.env["account.move"].search(
                 [
                     ("company_id", "in", self.ids),
                     ("move_type", "=", "out_invoice"),
                     ("committed_to_avatax", "=", False),
-                    ("date", "<=", values["fiscalyear_lock_date"]),
+                    ("date", "<=", fiscalyear_lock_date),
                 ]
             )
             if uncommits_entries:
