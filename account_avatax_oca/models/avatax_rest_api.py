@@ -66,6 +66,20 @@ class AvaTaxRESTService:
         ):
             self.client.client_header["X-Avalara-Client"] = self.AVALARA_CLIENT_HEADER
 
+    def _log_certified_client_header(self):
+        if not self.is_log_enabled or not getattr(self, "client", False):
+            return
+        header_value = None
+        if hasattr(self.client, "client_header") and isinstance(
+            self.client.client_header, dict
+        ):
+            header_value = self.client.client_header.get("X-Avalara-Client")
+        if not header_value and hasattr(self.client, "client_id"):
+            header_value = self.client.client_id
+        _logger.info(
+            "AvaTax Certified Header X-Avalara-Client: %s", header_value or ""
+        )
+
     def _sanitize_text(self, text):
         res = (
             text.replace("/", "_-ava2f-_")
@@ -311,6 +325,7 @@ class AvaTaxRESTService:
 
         data = {"createTransactionModel": create_transaction}
         if self.is_log_enabled:
+            self._log_certified_client_header()
             _logger.info(
                 "Request CreateOrAdjustTransaction %s %s (commit %s)\n%s",
                 doc_type,
@@ -327,6 +342,7 @@ class AvaTaxRESTService:
 
     def call(self, endpoint, company_code, doc_code, model=None, params=None):
         if self.is_log_enabled:
+            self._log_certified_client_header()
             _logger.info(
                 "Request Call %s(%s, %s, %s, %s)",
                 endpoint,
