@@ -1,6 +1,6 @@
 {
     "name": "Avatax Exemptions Base",
-    "version": "18.0.1.0.0",
+    "version": "20.0.1.0.0",
     "category": "Sales",
     "summary": """
         This application allows you to add exemptions base to Avatax
@@ -10,14 +10,12 @@
     "license": "LGPL-3",
     "depends": [
         "mail",
-        "account",
-    ],
+        "account"],
     "data": [
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "data/ir_sequence_data.xml",
         "views/res_country_state_view.xml",
-        "views/avalara_exemption_view.xml",
-    ],
+        "views/avalara_exemption_view.xml"],
     "images": ["static/description/avatax_icon.png"],
     "installable": True,
     "application": False,

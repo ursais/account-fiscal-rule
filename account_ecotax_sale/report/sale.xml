@@ -38,7 +38,7 @@
             >
                 <td name="ecotax_label">Including Eco Part</td>
                 <td class="text-end">
-                    <span t-esc="doc._get_formatted_ecotax_amount()" />
+                    <span t-out="doc._get_formatted_ecotax_amount()" />
                 </td>
             </tr>
         </xpath>

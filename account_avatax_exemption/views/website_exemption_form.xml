@@ -1,10 +1,9 @@
 <odoo>
     <template id="exemptions_followup" name="Portal Exemption Form">
-        <t t-call="portal.portal_layout">
+        <t t-call="portal.portal_layout" breadcrumbs_searchbar="True">
             <t t-call="account_avatax_exemption.form_breadcrumb" />
             <div class="container mt16">
                 <div id="wrap" t-attf-class="pb-2 pt-3 #{'card-header bg-white'}">
-                    <t t-set="breadcrumbs_searchbar" t-value="True" />
                     <t name="placeholder1" />
                     <section id="exemption_title" class="row card-header bg-white">
                         <div class="col-12">
@@ -62,9 +61,7 @@
             </div>
             <div id="exemption_communication" class="mt-4">
                 <h2>History</h2>
-                <t t-call="portal.message_thread">
-                    <t t-set="object" t-value="exemption" />
-                </t>
+                <t t-call="portal.message_thread" object="exemption"/>
             </div>
         </t>
     </template>

@@ -1,0 +1,2 @@
+id,name,model_id,group_id/id,operation,domain
+access_avatax_log,avatax_log,model_avatax_log,base.group_user,crud,

@@ -6,19 +6,18 @@
     "summary": "Ecotax Management: in French context is a 'cost' "
     "added to the sale price of electrical or electronic appliances "
     "or furnishing items",
-    "version": "19.0.1.0.0",
+    "version": "20.0.1.0.0",
     "author": "Akretion, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/account-fiscal-rule",
     "category": "Localization/Account Taxes",
     "license": "AGPL-3",
     "maintainers": ["mourad-ehm", "florian-dacosta"],
     "depends": [
-        "account",
-    ],
+        "account"],
     "data": [
         "data/decimal_precision.xml",
         "security/ir_rule.xml",
-        "security/ir.model.access.csv",
+        "security/ir.access.csv",
         "views/account_ecotax_category_view.xml",
         "views/ecotax_sector_view.xml",
         "views/ecotax_collector_view.xml",
@@ -27,8 +26,7 @@
         "views/account_move_view.xml",
         "views/product_template_view.xml",
         "views/product_view.xml",
-        "report/invoice.xml",
-    ],
+        "report/invoice.xml"],
     "installable": True,
     "pre_init_hook": "pre_init_hook",
 }

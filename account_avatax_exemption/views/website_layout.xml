@@ -26,11 +26,10 @@
         inherit_id="portal.portal_my_home"
     >
         <xpath expr="//div[hasclass('o_portal_docs')]" position="inside">
-            <t t-call="portal.portal_docs_entry">
-                <t t-set="title">Exemptions</t>
-                <t t-set="url" t-value="'/my/exemptions'" />
-                <t t-set="count" t-value="exemption_count" />
-            </t>
+            <t t-call="portal.portal_docs_entry"
+                title.translate="Exemptions"
+                url.f="/my/exemptions"
+                count="exemption_count"/>
         </xpath>
     </template>
 </odoo>

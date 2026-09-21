@@ -1,0 +1,14 @@
+id,name,model_id,group_id/id,operation,domain
+ir_rule_tax_group,Ecotax Classification,model_account_ecotax_classification,,crud,"['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]"
+ir_model_access_account_ecotax_classification_manager,Full access account_ecotax_classification to accountant,model_account_ecotax_classification,account.group_account_manager,crud,
+ir_model_access_account_ecotax_category_manager,Full access to account.ecotax.category to accoutant,model_account_ecotax_category,account.group_account_manager,crud,
+ir_model_access_ecotax_sector_manager,Full access to ecotax.sector to accoutant,model_ecotax_sector,account.group_account_manager,crud,
+ir_model_access_ecotax_collector_manager,Full access to ecotax.collector to accoutant,model_ecotax_collector,account.group_account_manager,crud,
+ir_model_access_account_ecotax_classification_user,Read access account_ecotax_classification to group invoice,model_account_ecotax_classification,account.group_account_invoice,r,
+ir_model_access_account_ecotax_category_user,Read access to account.ecotax.category to group invoice,model_account_ecotax_category,account.group_account_invoice,r,
+ir_model_access_ecotax_sector_user,Read access to ecotax.sector to group invoice,model_ecotax_sector,account.group_account_invoice,r,
+ir_model_access_ecotax_collector_user,Read access to ecotax.collector to group invoice,model_ecotax_collector,account.group_account_invoice,r,
+access_account_move_line_ecotax_readonly,account.move.line.ecotax readonly,model_account_move_line_ecotax,account.group_account_readonly,r,
+ir_model_access_account_move_line_ecotax_group_invoice,Read Full acess to model_account_move_line_ecotax to group invoice,model_account_move_line_ecotax,account.group_account_invoice,crud,
+ir_model_access_ecotax_line_product_group_invoice,Read Full acess to model_ecotax_line_product to group invoice,model_ecotax_line_product,account.group_account_invoice,crud,
+access_ecotax_line_product_readonly,ecotax.line.product readonly,model_ecotax_line_product,account.group_account_readonly,r,

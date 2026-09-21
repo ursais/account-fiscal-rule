@@ -87,9 +87,10 @@ class ResPartner(models.Model):
         help="The type of exemption granted",
     )
 
-    _sql_constraints = [
-        ("name_uniq", "unique(customer_code)", "Customer Code must be unique!"),
-    ]
+    _name_uniq = models.Constraint(
+        'unique(customer_code)',
+        "Customer Code must be unique!",
+    )
 
     @api.depends(
         "property_tax_exempt", "property_exemption_code_id", "property_exemption_number"

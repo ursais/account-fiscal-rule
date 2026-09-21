@@ -1,7 +1,6 @@
 <odoo>
     <template id="portal_my_exemptions" name="My Exemptions">
-        <t t-call="portal.portal_layout">
-            <t t-set="breadcrumbs_searchbar" t-value="True" />
+        <t t-call="portal.portal_layout" breadcrumbs_searchbar="True">
             <t name="placeholder1" />
             <h3 class="page-header">
                 Your Exemptions

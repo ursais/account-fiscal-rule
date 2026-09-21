@@ -1,0 +1,11 @@
+id,name,model_id,group_id/id,operation,domain
+account_salestax_avatax_comp_rule,AvaTax multi-company,model_avalara_salestax,,crud,"['|',('company_id','=',False),('company_id','in',company_ids)]"
+access_avalara_salestax_manager,avalara.salestax.manager,model_avalara_salestax,account.group_account_manager,crud,
+access_avalara_salestax_employee,avalara.salestax.employee,model_avalara_salestax,base.group_user,r,
+access_product_tax_code_employee,product.tax.code.employee,model_product_tax_code,base.group_user,r,
+access_product_tax_code_manager,product.tax.code.manager,model_product_tax_code,account.group_account_manager,crud,
+access_exemption_code_manager,exemption.code.manager,model_exemption_code,account.group_account_manager,crud,
+access_exemption_code_employee,exemption.code.employee,model_exemption_code,base.group_user,r,
+access_avalara_salestax_ping,avalara_salestax_ping,model_avalara_salestax_ping,account.group_account_manager,crud,
+access_avalara_salestax_address_validate,avalara_salestax_address_validate,model_avalara_salestax_address_validate,base.group_user,crud,
+access_avalara_salestax_getcompany,avalara_salestax_getcompany,model_avalara_salestax_getcompany,account.group_account_manager,crud,

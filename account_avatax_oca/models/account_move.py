@@ -431,7 +431,7 @@ class AccountMove(models.Model):
                 avatax_config.invoice_calculate_tax
                 and record.calculate_tax_on_save
                 and record.state == "draft"
-                and not self._context.get("skip_second_write", False)
+                and not self.env.context.get("skip_second_write", False)
             ):
                 record.with_context(skip_second_write=True).write(
                     {"calculate_tax_on_save": False}
@@ -447,7 +447,7 @@ class AccountMove(models.Model):
             if (
                 avatax_config.invoice_calculate_tax
                 and move.calculate_tax_on_save
-                and not self._context.get("skip_second_write", False)
+                and not self.env.context.get("skip_second_write", False)
             ):
                 move.with_context(skip_second_write=True).write(
                     {"calculate_tax_on_save": False}
